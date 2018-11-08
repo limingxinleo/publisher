@@ -88,7 +88,7 @@ class KongCommand
     /**
      * 下线Target
      * @Usage {command} services
-     * @Example {command} upstream=SwoftUpstream target=127.0.0.1:8080 weight=100
+     * @Example {command} upstream=SwoftUpstream target=xxxxx
      * @return int
      */
     public function targetDown(Input $input, Output $output)

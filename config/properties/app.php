@@ -13,4 +13,9 @@ return [
     'bootScan' => [
         'Publisher\Commands',
     ],
+    'beanScan' => [
+        'Publisher\Service',
+        'Publisher\Config',
+    ],
+    'kong' => require __DIR__ . '/kong.php',
 ];

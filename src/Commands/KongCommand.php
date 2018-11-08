@@ -9,59 +9,105 @@
  */
 namespace Publisher\Commands;
 
+use Publisher\Service\Kong;
+use Publisher\Config\KongConfig;
+use Swoft\App;
 use Swoft\Console\Bean\Annotation\Command;
 use Swoft\Console\Input\Input;
 use Swoft\Console\Output\Output;
 use Swoftx\Creater\Common\Writer;
 
 /**
- * This is a Component Command for Swoft
+ * Kong网关 脚本
  * @Command(coroutine=false)
- * @package App\Commands
  */
 class KongCommand
 {
     /**
-     * Init Component
-     * @Usage {command} component
-     * @Example {command} limingxinleo/swoft-test --description=测试组件 --namespace=Swoftx\\\\TestComponent\\\\ --author=李铭昕 --email=limingxin@swoft.org
-     * @param Input  $input
-     * @param Output $output
+     * 打印某网关所有Target
+     * @Usage {command} services
+     * @Example {command} upstream=SwoftUpstream
      * @return int
      */
-    public function initialize(Input $input, Output $output): int
+    public function targets(Input $input, Output $output): int
     {
-        $component = $input->get('component', $input->get(0));
-        if (is_null($component)) {
-            $output->writeln('<error>The Component Name is required!</error>', true, true);
+        $upstreamName = $input->getArg('upstream');
+        if (is_null($upstreamName)) {
+            $output->colored("upstream is required!", 'error');
+            exit;
         }
 
-        $componentArray = explode('/', $component);
-        $group = $componentArray[0] ?? null;
-        $name = $componentArray[1] ?? null;
+        $kong = bean(Kong::class);
+        $res = $kong->targets($upstreamName);
 
-        if ($group == null || $name == null) {
-            $output->writeln('<error>The Component Name is invalid, Please input group/name!</error>', true, true);
+        $data = $res['data'] ?? [];
+        if (empty($data)) {
+            $output->colored("Targets is empty!", 'error');
+            exit;
         }
 
-        $description = $input->getOpt('description', '');
-        $namespace = $input->getOpt('namespace', 'Swoftx\\\\Test\\\\');
-        $author = $input->getOpt('author', 'SwoftDeveloper');
-        $email = $input->getOpt('email', 'developer@swoft.org');
+        foreach ($data as $item) {
+            $id = $item['id'];
+            $target = $item['target'];
+            $weight = $item['weight'];
 
-        $dst = getcwd();
-        $tpl = alias('@tpl');
-
-        if (!check_dir($dst)) {
-            $output->writeln('<error>The Component Dir is not Empty!</error>', true, true);
+            $output->writeln($id . "\t" . $target . "\t" . $weight);
         }
 
-        copy_dir($tpl, $dst);
-
-        $writer = new Writer($component, $name, $description, $namespace, $author, $email);
-        $writer->handle($dst);
-
-        $output->writeln('<success>The Component Init Success!!</success>', true);
         return 0;
+    }
+
+    /**
+     * 上线Target
+     * @Usage {command} services
+     * @Example {command} upstream=SwoftUpstream target=127.0.0.1:8080 weight=100
+     * @return int
+     */
+    public function targetUp(Input $input, Output $output)
+    {
+        $upstreamName = $input->getArg('upstream');
+        $target = $input->getArg('target');
+        $weight = $input->getArg('weight');
+
+        if (is_null($upstreamName) || is_null($target) || is_null($weight)) {
+            $output->colored("params invalid!", 'error');
+            exit;
+        }
+
+        $kong = bean(Kong::class);
+        $res = $kong->targetUp($upstreamName, $target, $weight);
+
+        if (!isset($res['id'])) {
+            $output->colored("target up failed!", 'error');
+            exit;
+        }
+
+        $output->colored('target up success! id= ' . $res['id']);
+    }
+
+    /**
+     * 下线Target
+     * @Usage {command} services
+     * @Example {command} upstream=SwoftUpstream target=127.0.0.1:8080 weight=100
+     * @return int
+     */
+    public function targetDown(Input $input, Output $output)
+    {
+        $upstreamName = $input->getArg('upstream');
+        $target = $input->getArg('target');
+
+        if (is_null($upstreamName) || is_null($target)) {
+            $output->colored("params invalid!", 'error');
+            exit;
+        }
+
+        $kong = bean(Kong::class);
+        $res = $kong->targetDown($upstreamName, $target);
+
+        if (!$res) {
+            $output->colored("target down failed!", 'error');
+        }
+
+        $output->colored('target down success!');
     }
 }

@@ -7,7 +7,7 @@
  * @contact  limingxin@swoft.org
  * @license  https://github.com/swoft-cloud/swoft/blob/master/LICENSE
  */
-namespace Swoftx\Creater\Commands;
+namespace Publisher\Commands;
 
 use Swoft\Console\Bean\Annotation\Command;
 use Swoft\Console\Input\Input;
@@ -19,7 +19,7 @@ use Swoftx\Creater\Common\Writer;
  * @Command(coroutine=false)
  * @package App\Commands
  */
-class ComponentCommand
+class KongCommand
 {
     /**
      * Init Component

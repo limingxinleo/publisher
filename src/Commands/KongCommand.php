@@ -10,12 +10,9 @@
 namespace Publisher\Commands;
 
 use Publisher\Service\Kong;
-use Publisher\Config\KongConfig;
-use Swoft\App;
 use Swoft\Console\Bean\Annotation\Command;
 use Swoft\Console\Input\Input;
 use Swoft\Console\Output\Output;
-use Swoftx\Creater\Common\Writer;
 
 /**
  * Kong网关 脚本
@@ -33,7 +30,7 @@ class KongCommand
     {
         $upstreamName = $input->getArg('upstream');
         if (is_null($upstreamName)) {
-            $output->colored("upstream is required!", 'error');
+            $output->colored('upstream is required!', 'error');
             exit;
         }
 
@@ -42,7 +39,7 @@ class KongCommand
 
         $data = $res['data'] ?? [];
         if (empty($data)) {
-            $output->colored("Targets is empty!", 'error');
+            $output->colored('Targets is empty!', 'error');
             exit;
         }
 
@@ -70,7 +67,7 @@ class KongCommand
         $weight = $input->getArg('weight');
 
         if (is_null($upstreamName) || is_null($target) || is_null($weight)) {
-            $output->colored("params invalid!", 'error');
+            $output->colored('params invalid!', 'error');
             exit;
         }
 
@@ -78,7 +75,7 @@ class KongCommand
         $res = $kong->targetUp($upstreamName, $target, $weight);
 
         if (!isset($res['id'])) {
-            $output->colored("target up failed!", 'error');
+            $output->colored('target up failed!', 'error');
             exit;
         }
 
@@ -97,7 +94,7 @@ class KongCommand
         $target = $input->getArg('target');
 
         if (is_null($upstreamName) || is_null($target)) {
-            $output->colored("params invalid!", 'error');
+            $output->colored('params invalid!', 'error');
             exit;
         }
 
@@ -105,7 +102,7 @@ class KongCommand
         $res = $kong->targetDown($upstreamName, $target);
 
         if (!$res) {
-            $output->colored("target down failed!", 'error');
+            $output->colored('target down failed!', 'error');
         }
 
         $output->colored('target down success!');

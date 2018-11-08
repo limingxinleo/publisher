@@ -10,13 +10,9 @@
 namespace Publisher\Commands;
 
 use Publisher\Service\Git;
-use Publisher\Service\Kong;
-use Publisher\Config\KongConfig;
-use Swoft\App;
 use Swoft\Console\Bean\Annotation\Command;
 use Swoft\Console\Input\Input;
 use Swoft\Console\Output\Output;
-use Swoftx\Creater\Common\Writer;
 
 /**
  * Publisher 发布脚本
@@ -27,14 +23,14 @@ class PublishCommand
     /**
      * 发布项目
      * @Usage {command} services
-     * @Example {command} upstream=SwoftUpstream target=xxxxx
+     * @Example {command} host=192.168.1.1
      * @return int
      */
     public function deploy(Input $input, Output $output)
     {
         $host = $input->getArg('host');
         if (is_null($host)) {
-            $output->colored("host invalid!", 'error');
+            $output->colored('host invalid!', 'error');
             exit;
         }
 
